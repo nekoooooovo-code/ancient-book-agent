@@ -159,6 +159,8 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+st.markdown("### 知识底座概览")
+st.caption("当前加载本体的规模与规则覆盖情况，用于说明系统知识基础。")
 stats = engine.ontology_stats()
 metric_cols = st.columns(6)
 for i, (k, v) in enumerate(stats.items()):
@@ -169,11 +171,13 @@ if not books:
     st.warning("没有识别到“古籍文献”实例。请确认上传本体中的类名/属性名。")
 
 tabs = st.tabs(
-    ["🤖 智能修复助手", "📖 古籍档案", "🧪 工序知识", "🕸️ 推理图谱", "🧰 Agent 轨迹", "ℹ️ 系统说明"]
+    ["🧭 智能研判", "📚 知识检索", "🔎 推理审计", "ℹ️ 系统说明"]
 )
 
+# 1. 智能研判：面向馆员的主工作区
 with tabs[0]:
     st.markdown("#### 场景输入")
+    st.caption("描述古籍与病害，系统将调用本体规则、知识库和大模型生成可解释的辅助研判结果。")
     c1, c2 = st.columns([1, 2], gap="large")
     with c1:
         selected = st.selectbox("可选：指定古籍档案", ["（自动识别）"] + books)
@@ -194,7 +198,7 @@ with tabs[0]:
             ),
             height=122,
         )
-        if st.button("开始分析", type="primary", use_container_width=True):
+        if st.button("开始研判", type="primary", use_container_width=True):
             default_book = None if selected == "（自动识别）" else selected
             st.session_state["last_result"] = agent.run(q, selected_book=default_book)
 
@@ -206,7 +210,7 @@ with tabs[0]:
         hits = result["hits"]
 
         st.divider()
-        st.markdown("## 分析结果")
+        st.markdown("## 研判结果")
 
         obj_col, status_col = st.columns([2, 1])
         with obj_col:
@@ -278,7 +282,7 @@ with tabs[0]:
                 )
 
         if hits:
-            st.markdown("### 本地知识库检索")
+            st.markdown("### 依据检索")
             st.caption("以下内容用于补充解释与审计，不等同于自动生成新的修复规则。")
             for h in hits:
                 with st.expander(h.source, expanded=False):
@@ -293,64 +297,83 @@ with tabs[0]:
             "本系统用于知识组织、检索和解释性辅助，不替代古籍修复专业人员的现场判断与操作。"
         )
 
+# 2. 知识检索：把“古籍档案”和“工序知识”归并为同一业务模块
 with tabs[1]:
-    if books:
-        b = st.selectbox("选择古籍", books, key="profile_book")
-        st.markdown("### 档案卡")
-        profile = engine.book_profile(b)
-        for k, v in profile.items():
-            if k != "古籍":
-                st.write(f"**{k}：** {v}")
+    st.markdown("#### 领域知识检索")
+    st.caption("浏览本体中的古籍档案与修复工序知识，不涉及自动决策。")
+    knowledge_tabs = st.tabs(["📖 古籍档案", "🧪 修复工序"])
 
-        st.markdown("### 结构化病害关系")
-        diseases = engine.object_values(b, "具有病害")
-        if diseases:
-            for d in diseases:
-                ps = engine.disease_processes(d)
-                if ps:
-                    st.write(f"- **{b}** —具有病害→ **{d}** —适用修复工序→ **{'、'.join(ps)}**")
-                else:
-                    st.write(f"- **{b}** —具有病害→ **{d}**（暂无工序映射）")
-        else:
-            st.info("该古籍在当前 RDF 中暂无“具有病害”对象属性断言。")
+    with knowledge_tabs[0]:
+        if books:
+            b = st.selectbox("选择古籍", books, key="profile_book")
+            st.markdown("### 档案卡")
+            profile = engine.book_profile(b)
+            for k, v in profile.items():
+                if k != "古籍":
+                    st.write(f"**{k}：** {v}")
 
+            st.markdown("### 结构化病害关系")
+            diseases = engine.object_values(b, "具有病害")
+            if diseases:
+                for d in diseases:
+                    ps = engine.disease_processes(d)
+                    if ps:
+                        st.write(f"- **{b}** —具有病害→ **{d}** —适用修复工序→ **{'、'.join(ps)}**")
+                    else:
+                        st.write(f"- **{b}** —具有病害→ **{d}**（暂无工序映射）")
+            else:
+                st.info("该古籍在当前 RDF 中暂无“具有病害”对象属性断言。")
+
+    with knowledge_tabs[1]:
+        processes = engine.all_processes()
+        if processes:
+            p = st.selectbox("选择工序", processes, key="process_book")
+            prof = engine.process_profile(p)
+            st.markdown(f"### {p}")
+            for k in ["前置工序", "后续工序", "使用工具", "使用原料", "产出成品"]:
+                vals = prof[k]
+                st.write(f"**{k}：** " + ("、".join(vals) if vals else "—"))
+
+# 3. 推理审计：把“推理图谱”和“Agent轨迹”归并，强调可解释/可审计
 with tabs[2]:
-    processes = engine.all_processes()
-    if processes:
-        p = st.selectbox("选择工序", processes, key="process_book")
-        prof = engine.process_profile(p)
-        st.markdown(f"### {p}")
-        for k in ["前置工序", "后续工序", "使用工具", "使用原料", "产出成品"]:
-            vals = prof[k]
-            st.write(f"**{k}：** " + ("、".join(vals) if vals else "—"))
+    st.markdown("#### 推理审计")
+    st.caption("查看系统如何从本体事实、属性链与工具调用得到结果，便于馆员复核。")
+    audit_tabs = st.tabs(["🕸️ 推理路径", "🧰 Agent 轨迹"])
 
+    with audit_tabs[0]:
+        if books:
+            b = st.selectbox("选择要查看推理路径的古籍", books, key="graph_book")
+            st.graphviz_chart(engine.graphviz_for_book(b), use_container_width=True)
+            st.caption("实线为 RDF 中显式断言；虚线为应用按本体属性链规则计算得到的“建议修复工序”。")
+
+    with audit_tabs[1]:
+        result = st.session_state.get("last_result")
+        if not result:
+            st.info("先在“智能研判”运行一次分析，这里会显示 Agent 的工具调用轨迹。")
+        else:
+            st.caption("展示实体理解、本体查询、规则推理、本地知识检索与大模型组织回答的执行顺序。")
+            for i, step in enumerate(result["trace"], 1):
+                with st.expander(f"{i}. {step['tool']}", expanded=True):
+                    st.json(step)
+
+# 4. 系统说明：保留方法、边界与技术路线
 with tabs[3]:
-    if books:
-        b = st.selectbox("选择要查看推理路径的古籍", books, key="graph_book")
-        st.graphviz_chart(engine.graphviz_for_book(b), use_container_width=True)
-        st.caption("实线为 RDF 中显式断言；虚线为应用按本体属性链规则计算得到的“建议修复工序”。")
-
-with tabs[4]:
-    result = st.session_state.get("last_result")
-    if not result:
-        st.info("先在“智能修复助手”运行一次分析，这里会显示 Agent 的工具调用轨迹。")
-    else:
-        st.caption("用于展示系统如何依次完成实体理解、本体查询、规则推理与本地知识检索。")
-        for i, step in enumerate(result["trace"], 1):
-            with st.expander(f"{i}. {step['tool']}", expanded=True):
-                st.json(step)
-
-with tabs[5]:
     st.markdown(
         """
 ### 系统定位
 本原型不是自动修复系统，而是面向高校图书馆馆员和古籍保护人员的**知识组织与辅助决策工具**。
 
+### 功能分层
+- **智能研判**：面向实际业务问题，输出候选工序、知识边界与AI综合说明；
+- **知识检索**：浏览古籍档案与修复工序知识；
+- **推理审计**：查看推理路径与 Agent 工具调用轨迹；
+- **系统说明**：说明技术路线、专业边界和当前知识覆盖范围。
+
 ### 技术路线
 1. **真实领域本体**：直接读取 Protégé 导出的 RDF，保存古籍、病害、工序、材料、工具及语义关系；
 2. **规则推理**：执行 RDF 中已存在的“具有病害 o 适用修复工序 ⊑ 建议修复工序”属性链逻辑；
 3. **本地知识检索**：从 `knowledge/` 检索可审计说明材料；正式应用应继续接入权威修复规范与馆内制度；
-4. **可选 LLM**：只负责自然语言理解和回答组织，本体事实与规则作为约束；
+4. **LLM 辅助**：只负责自然语言理解和回答组织，本体事实与规则作为约束；
 5. **可解释展示**：公开实体、规则、推理路径和 Agent 工具轨迹。
 
 ### 当前 RDF 的真实边界
