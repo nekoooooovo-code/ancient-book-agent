@@ -218,7 +218,7 @@ st.markdown(
 <div class="hero">
   <div class="hero-title">古籍智护</div>
   <div class="hero-sub">古籍保护知识辅助系统</div>
-  <div class="hero-meta">知识检索 · 关联分析 · 候选工序 · 人工复核</div>
+  <div class="hero-meta">用于馆藏古籍病害信息查询与修复知识辅助</div>
 </div>
 """,
     unsafe_allow_html=True,
