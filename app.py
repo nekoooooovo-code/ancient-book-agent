@@ -566,8 +566,7 @@ with tabs[0]:
             height=132,
             placeholder="例如：《天工开物》存在水渍，请查询相关修复工序。",
         )
-        query_button_label = "重新查询" if st.session_state.get("last_result") else "查询"
-        if st.button(query_button_label, type="primary", use_container_width=True):
+        if st.button("查询", type="primary", use_container_width=True):
             if not q.strip():
                 st.warning("请先输入古籍名称、病害情况或查询问题。")
             else:
