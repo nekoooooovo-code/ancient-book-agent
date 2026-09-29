@@ -171,13 +171,13 @@ if not books:
     st.warning("没有识别到“古籍文献”实例。请确认上传本体中的类名/属性名。")
 
 tabs = st.tabs(
-    ["🧭 智能研判", "📚 知识检索", "🔎 推理审计", "ℹ️ 系统说明"]
+    ["🧭 智能分析", "📚 知识检索", "🔎 推理审计", "ℹ️ 系统说明"]
 )
 
-# 1. 智能研判：面向馆员的主工作区
+# 1. 智能分析：面向馆员的主工作区
 with tabs[0]:
     st.markdown("#### 场景输入")
-    st.caption("描述古籍与病害，系统将调用本体规则、知识库和大模型生成可解释的辅助研判结果。")
+    st.caption("描述古籍与病害，系统将调用本体规则、知识库和大模型生成可解释的辅助分析结果。")
     c1, c2 = st.columns([1, 2], gap="large")
     with c1:
         selected = st.selectbox("可选：指定古籍档案", ["（自动识别）"] + books)
@@ -198,7 +198,7 @@ with tabs[0]:
             ),
             height=122,
         )
-        if st.button("开始研判", type="primary", use_container_width=True):
+        if st.button("开始分析", type="primary", use_container_width=True):
             default_book = None if selected == "（自动识别）" else selected
             st.session_state["last_result"] = agent.run(q, selected_book=default_book)
 
@@ -210,7 +210,7 @@ with tabs[0]:
         hits = result["hits"]
 
         st.divider()
-        st.markdown("## 研判结果")
+        st.markdown("## 分析结果")
 
         obj_col, status_col = st.columns([2, 1])
         with obj_col:
@@ -349,7 +349,7 @@ with tabs[2]:
     with audit_tabs[1]:
         result = st.session_state.get("last_result")
         if not result:
-            st.info("先在“智能研判”运行一次分析，这里会显示 Agent 的工具调用轨迹。")
+            st.info("先在“智能分析”运行一次分析，这里会显示 Agent 的工具调用轨迹。")
         else:
             st.caption("展示实体理解、本体查询、规则推理、本地知识检索与大模型组织回答的执行顺序。")
             for i, step in enumerate(result["trace"], 1):
@@ -364,7 +364,7 @@ with tabs[3]:
 本原型不是自动修复系统，而是面向高校图书馆馆员和古籍保护人员的**知识组织与辅助决策工具**。
 
 ### 功能分层
-- **智能研判**：面向实际业务问题，输出候选工序、知识边界与AI综合说明；
+- **智能分析**：面向实际业务问题，输出候选工序、知识边界与AI综合说明；
 - **知识检索**：浏览古籍档案与修复工序知识；
 - **推理审计**：查看推理路径与 Agent 工具调用轨迹；
 - **系统说明**：说明技术路线、专业边界和当前知识覆盖范围。
