@@ -40,7 +40,7 @@ st.markdown(
 }
 
 .block-container {
-    padding-top: 1.25rem;
+    padding-top: .7rem;
     padding-bottom: 3rem;
     max-width: 1180px;
 }
@@ -58,8 +58,8 @@ st.markdown(
 
 /* 顶部题签：去掉渐变、胶囊标签和大圆角 */
 .hero {
-    padding: 1rem 0 1.05rem 0;
-    margin-bottom: 1.2rem;
+    padding: 2.35rem 0 1.45rem 0;
+    margin-bottom: 1.35rem;
     border-bottom: 2px solid var(--accent);
     overflow: visible;
 }
@@ -68,10 +68,10 @@ st.markdown(
     font-size: 1.82rem;
     font-weight: 700;
     letter-spacing: .035em;
-    line-height: 1.55;
+    line-height: 1.5;
     color: var(--ink);
     margin: 0;
-    padding: .08rem 0 .12rem 0;
+    padding: .06rem 0 .08rem 0;
     display: block;
     overflow: visible;
     white-space: normal;
@@ -79,13 +79,16 @@ st.markdown(
 .hero-sub {
     color: var(--muted);
     font-size: 1rem;
-    margin-top: .45rem;
+    margin-top: .72rem;
+    line-height: 1.55;
 }
 .hero-meta {
     color: var(--accent);
     font-size: .84rem;
-    margin-top: .55rem;
-    letter-spacing: .03em;
+    margin-top: .62rem;
+    margin-bottom: .28rem;
+    line-height: 1.5;
+    letter-spacing: .025em;
 }
 
 /* 降低“AI SaaS 卡片感” */
