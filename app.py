@@ -211,7 +211,13 @@ with tabs[0]:
         obj_col, status_col = st.columns([2, 1])
         with obj_col:
             if parsed["book"]:
-                st.write(f"**分析对象：** {parsed['book']}")
+                if parsed.get("book_in_ontology", False):
+                    st.write(f"**分析对象：** {parsed['book']}　　**对象来源：** 本体已有古籍实例")
+                else:
+                    st.write(
+                        f"**分析对象：** {parsed['book']}　　"
+                        "**对象来源：** 用户输入（非当前本体已有古籍实例）"
+                    )
             if parsed["diseases"]:
                 source_label = "用户输入情景" if parsed["explicit_from_user"] else "本体已有病害"
                 st.write(f"**识别病害：** {'、'.join(parsed['diseases'])}　　**来源：** {source_label}")
@@ -349,7 +355,8 @@ with tabs[5]:
 - “水渍 → 适用修复工序 → 水洗”已存在，因此可形成《天工开物》的属性链推理；
 - “酸化 → 适用修复工序 → 脱酸”已存在；
 - 当前 RDF **没有**“史记 → 具有病害 → 酸化”的显式断言。因此“史记 + 酸化”只作为用户临时输入的**情景推演**，不冒充馆藏事实；
-- “纸张发黄”目前没有工序映射，系统不会自行补造。
+- “纸张发黄”目前没有工序映射，系统不会自行补造；
+- 若用户输入《四库全书》等当前 RDF 中不存在的古籍名称，系统会保留该书名并标注为“用户输入对象”，只进行临时情景推演，不把它写成本体馆藏事实。
 
 ### 专业边界
 所有修复建议均应由修复专业人员结合纸张强度、颜料稳定性、病害原因和馆藏实物状态复核。系统遵循“馆员主导、AI 辅助”。
