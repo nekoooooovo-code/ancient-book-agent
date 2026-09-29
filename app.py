@@ -434,6 +434,140 @@ def _display_reference_item(ref: dict) -> None:
         st.write(note)
 
 
+
+def _dot_escape(value: str) -> str:
+    value = str(value or "")
+    return (
+        value.replace("\\", "\\\\")
+        .replace('"', '\\"')
+        .replace("\n", "\\n")
+    )
+
+
+def _build_reasoning_flow(parsed: dict, recs: list, has_refs: bool) -> str:
+    """
+    面向普通用户的“查询流程图”。
+    只展示本次查询实际识别到的对象/病害/候选工序，
+    但流程结构本身固定，便于后续扩充知识库后自动适配。
+    """
+    book = parsed.get("book") or "古籍对象"
+    diseases = parsed.get("diseases", []) or []
+    disease_text = "、".join(diseases) if diseases else "病害信息"
+
+    processes = []
+    for r in recs:
+        p = getattr(r, "process", "")
+        if p and p not in processes:
+            processes.append(p)
+    process_text = "、".join(processes) if processes else "候选工序"
+
+    is_scenario = any(getattr(r, "scenario_input", False) for r in recs)
+
+    source_note = "用户输入情景" if is_scenario else "知识库事实 / 查询条件"
+
+    dot = f"""
+digraph G {{
+    graph [
+        rankdir=LR,
+        bgcolor="transparent",
+        pad="0.25",
+        nodesep="0.38",
+        ranksep="0.55",
+        splines=ortho
+    ];
+
+    node [
+        shape=box,
+        style="rounded,filled",
+        fontname="Microsoft YaHei",
+        fontsize=12,
+        margin="0.16,0.10",
+        color="#cfc7bb",
+        fillcolor="#fffdf8",
+        fontcolor="#2e2b27",
+        penwidth=1.1
+    ];
+
+    edge [
+        color="#9a9184",
+        penwidth=1.2,
+        arrowsize=0.7,
+        fontname="Microsoft YaHei",
+        fontsize=10,
+        fontcolor="#6e675e"
+    ];
+
+    q [label="查询输入\\n{_dot_escape(book)} / {_dot_escape(disease_text)}"];
+    identify [label="信息识别\\n古籍 · 病害"];
+    relation [label="知识关系查询\\n古籍 → 病害 → 工序"];
+    rule [label="规则推理\\n属性链 / 已有关系"];
+    result [label="候选修复工序\\n{_dot_escape(process_text)}", fillcolor="#f5eee8", color="#a66a5e"];
+    refs [label="专业资料检索\\n标准 · 机构资料 · 学术研究"];
+    review [label="专业人员复核\\n结合实物状态判断", fillcolor="#f2f0e9", color="#8b8579"];
+
+    q -> identify;
+    identify -> relation [label="{_dot_escape(source_note)}"];
+    relation -> rule;
+    rule -> result;
+    result -> refs;
+    refs -> review;
+}}
+"""
+    return dot
+
+
+def _build_knowledge_relation_dot(parsed: dict, recs: list) -> str:
+    """
+    只画本次查询真正涉及的知识实体关系；
+    后续本体扩充后会自然增加更多病害/工序，不需要改页面结构。
+    """
+    book = parsed.get("book") or "古籍"
+    diseases = parsed.get("diseases", []) or []
+
+    dot = [
+        'digraph K {',
+        'graph [rankdir=LR, bgcolor="transparent", pad="0.2", nodesep="0.35", ranksep="0.5"];',
+        'node [shape=box, style="rounded,filled", fontname="Microsoft YaHei", fontsize=11, margin="0.14,0.08", color="#cfc7bb", fillcolor="#fffdf8", fontcolor="#2e2b27"];',
+        'edge [color="#9a9184", fontname="Microsoft YaHei", fontsize=10, fontcolor="#6e675e", arrowsize=0.7];',
+        f'book [label="{_dot_escape(book)}", fillcolor="#f5eee8", color="#a66a5e"];',
+    ]
+
+    disease_nodes = {}
+    for i, d in enumerate(diseases):
+        node_id = f"d{i}"
+        disease_nodes[d] = node_id
+        dot.append(f'{node_id} [label="{_dot_escape(d)}"];')
+        dot.append(f'book -> {node_id} [label="具有病害"];')
+
+    process_nodes = {}
+    pidx = 0
+    for r in recs:
+        disease = getattr(r, "disease", "")
+        process = getattr(r, "process", "")
+        if not process:
+            continue
+
+        if disease not in disease_nodes:
+            node_id = f"d{len(disease_nodes)}"
+            disease_nodes[disease] = node_id
+            dot.append(f'{node_id} [label="{_dot_escape(disease)}"];')
+            dot.append(f'book -> {node_id} [label="具有病害"];')
+
+        if process not in process_nodes:
+            pnode = f"p{pidx}"
+            pidx += 1
+            process_nodes[process] = pnode
+            dot.append(f'{pnode} [label="{_dot_escape(process)}", fillcolor="#f2f0e9"];')
+
+        dot.append(
+            f'{disease_nodes[disease]} -> {process_nodes[process]} '
+            f'[label="适用修复工序"];'
+        )
+
+    dot.append("}")
+    return "\n".join(dot)
+
+
 tabs = st.tabs(["查询", "关于系统"])
 
 # =========================================================
@@ -596,7 +730,7 @@ with tabs[0]:
                     f"“{book_name}”为本次查询临时输入，当前知识库中没有对应的古籍档案。"
                 )
 
-        with st.expander("查看推理依据", expanded=False):
+        with st.expander("查看文字依据", expanded=False):
             if recs:
                 for r in recs:
                     if r.scenario_input:
@@ -615,19 +749,6 @@ with tabs[0]:
                             f"→ 适用修复工序 → {r.process}"
                         )
 
-                if (
-                    book_name
-                    and parsed.get("book_in_ontology", False)
-                    and engine.object_values(book_name, "具有病害")
-                ):
-                    st.markdown("**关系图**")
-                    st.graphviz_chart(
-                        engine.graphviz_for_book(book_name),
-                        use_container_width=True,
-                    )
-                    st.caption(
-                        "关系图展示知识库中的显式关系；虚线为按属性链规则得到的候选关系。"
-                    )
             elif unresolved:
                 st.write(
                     "已识别病害，但由于当前知识库没有对应的病害—工序映射，"
@@ -635,6 +756,28 @@ with tabs[0]:
                 )
             else:
                 st.write("本次查询未形成可继续推理的病害—工序关系。")
+
+        # ----- 推理过程可视化 -----
+        st.markdown("### 推理过程")
+        st.caption("展示本次查询从信息识别、知识关系查询到候选工序和资料检索的完整路径。")
+        st.graphviz_chart(
+            _build_reasoning_flow(
+                parsed,
+                recs,
+                has_refs=True,
+            ),
+            use_container_width=True,
+        )
+
+        with st.expander("查看本次知识关系", expanded=False):
+            st.graphviz_chart(
+                _build_knowledge_relation_dot(parsed, recs),
+                use_container_width=True,
+            )
+            st.caption(
+                "该图仅展示本次查询涉及的实体与关系；随着知识库持续补充，"
+                "同一界面会自动显示新增病害、工序及其关联。"
+            )
 
         # ----- 专业资料检索：真实来源先检索，AI只扩展检索词 -----
         diseases_for_refs = tuple(parsed.get("diseases", []))
@@ -735,6 +878,7 @@ with tabs[1]:
     st.markdown("#### 技术说明")
     st.write(
         "系统读取 Protégé 导出的 RDF 本体，以“古籍—病害—修复工序—材料—工具”等关系组织知识。"
+        "每次查询都会生成对应的推理流程图和知识关系图，并随本体内容扩充自动更新。"
         "候选工序由已有关系和属性链规则产生；专业参考资料优先匹配国家标准和专业机构来源，"
         "并通过 Crossref 检索真实学术元数据。语言模型用于理解问题、扩展检索词和整理说明，"
         "不负责自行生成修复规则或虚构参考文献。"
