@@ -219,7 +219,10 @@ with tabs[0]:
                         "**对象来源：** 用户输入（非当前本体已有古籍实例）"
                     )
             if parsed["diseases"]:
-                source_label = "用户输入情景" if parsed["explicit_from_user"] else "本体已有病害"
+                source_label = parsed.get(
+                    "disease_source",
+                    "用户输入情景" if parsed["explicit_from_user"] else "本体已有病害",
+                )
                 st.write(f"**识别病害：** {'、'.join(parsed['diseases'])}　　**来源：** {source_label}")
         with status_col:
             if recs:
@@ -283,7 +286,7 @@ with tabs[0]:
                     st.caption(f"检索匹配度：{h.score:.2f}")
 
         if llm_client.configured():
-            with st.expander("AI 自然语言综合说明", expanded=True):
+            with st.expander("AI 综合说明（基于本体结果）", expanded=True):
                 st.markdown(result["answer"])
 
         st.info(
