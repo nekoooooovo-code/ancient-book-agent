@@ -1,0 +1,6 @@
+streamlit>=1.40
+rdflib>=7.0
+pandas>=2.0
+requests>=2.31
+pypdf>=5.0
+graphviz>=0.20

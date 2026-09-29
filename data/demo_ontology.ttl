@@ -1,0 +1,86 @@
+@prefix : <http://example.org/ancientbook#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://example.org/ancientbook> a owl:Ontology .
+
+# Classes
+:原料 a owl:Class .
+:现代修复材料-延伸 a owl:Class ; rdfs:subClassOf :原料 .
+:工具 a owl:Class .
+:修复专用工具-延伸 a owl:Class ; rdfs:subClassOf :工具 .
+:工序 a owl:Class .
+:现代修复工序-延伸 a owl:Class ; rdfs:subClassOf :工序 .
+:成品 a owl:Class .
+:古籍文献 a owl:Class ; rdfs:subClassOf :成品 .
+:呈色颜料 a owl:Class ; rdfs:subClassOf :成品 .
+:纸张载体 a owl:Class ; rdfs:subClassOf :成品 .
+:书装线材 a owl:Class .
+:病害 a owl:Class .
+
+# Object properties
+:前置工序 a owl:ObjectProperty ; rdfs:domain :工序 ; rdfs:range :工序 ; owl:inverseOf :后续工序 .
+:后续工序 a owl:ObjectProperty ; rdfs:domain :工序 ; rdfs:range :工序 ; owl:inverseOf :前置工序 .
+:产出成品 a owl:ObjectProperty ; rdfs:domain :工序 ; rdfs:range :成品 .
+:使用原料 a owl:ObjectProperty ; rdfs:domain :工序 ; rdfs:range :原料 .
+:使用工具 a owl:ObjectProperty ; rdfs:domain :工序 ; rdfs:range :工具 .
+:包含成分 a owl:ObjectProperty ; rdfs:domain :成品 ; rdfs:range :原料 .
+:具有病害 a owl:ObjectProperty ; rdfs:domain :古籍文献 ; rdfs:range :病害 .
+:适用修复工序 a owl:ObjectProperty ; rdfs:domain :病害 ; rdfs:range :现代修复工序-延伸 .
+:建议修复工序 a owl:ObjectProperty ; rdfs:domain :古籍文献 ; rdfs:range :现代修复工序-延伸 ;
+  owl:propertyChainAxiom ( :具有病害 :适用修复工序 ) .
+
+# Data properties
+:装帧形式 a owl:DatatypeProperty ; rdfs:domain :古籍文献 ; rdfs:range xsd:string .
+:行款版式 a owl:DatatypeProperty ; rdfs:domain :古籍文献 ; rdfs:range xsd:string .
+:版本类型 a owl:DatatypeProperty ; rdfs:domain :古籍文献 ; rdfs:range xsd:string .
+:破损状况 a owl:DatatypeProperty ; rdfs:domain :古籍文献 ; rdfs:range xsd:string .
+:测试数据 a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+
+# Books
+:天工开物 a :古籍文献 ;
+  :版本类型 "明崇祯十年涂本" ;
+  :行款版式 "半页九行，行二十一字，白口，单鱼尾" ;
+  :装帧形式 "线装" ;
+  :破损状况 "纸张发黄、水渍" ;
+  :具有病害 :水渍, :纸张发黄 .
+:史记 a :古籍文献 ; :具有病害 :酸化 ; :测试数据 true .
+:永乐大典 a :古籍文献 .
+:河图洛书原舛编 a :古籍文献 .
+
+# Deterioration
+:水渍 a :病害 ; :适用修复工序 :水洗 .
+:纸张发黄 a :病害 .
+:酸化 a :病害 ; :适用修复工序 :脱酸 ; :测试数据 true .
+
+# Modern restoration processes
+:压平 a :现代修复工序-延伸 .
+:托裱 a :现代修复工序-延伸 .
+:拆页 a :现代修复工序-延伸 .
+:揭表 a :现代修复工序-延伸 .
+:水洗 a :现代修复工序-延伸 .
+:溜口 a :现代修复工序-延伸 .
+:脱酸 a :现代修复工序-延伸 .
+
+# Historical processes
+:切料捣浆 a :工序 .
+:打孔穿线 a :工序 .
+:捶打入模 a :工序 .
+:斩竹漂塘 a :工序 .
+:榨纸脱水 a :工序 .
+:烧松取烟 a :工序 .
+:胶墨搅拌 a :工序 .
+:荡料入帘 a :工序 .
+:药液加浆 a :工序 .
+:蒸煮灰法 a :工序 .
+:透火焙干 a :工序 .
+
+# Materials and tools from the thesis model
+:小麦淀粉 a :现代修复材料-延伸 .
+:排笔 a :修复专用工具-延伸 .
+:棕刷 a :修复专用工具-延伸 .
+:马蹄刀 a :修复专用工具-延伸 .
+:丝线 a :书装线材 .
+:麻线 a :书装线材 .
