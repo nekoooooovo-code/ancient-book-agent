@@ -207,7 +207,7 @@ with st.sidebar:
         st.caption("本体查询、属性链推理和知识检索可独立运行。")
 
     st.divider()
-    st.caption("专业边界：系统只提供知识组织、检索和解释性辅助，不替代古籍修复专业人员的现场判断与操作。")
+    st.caption("使用边界：系统提供知识查询与候选工序参考，最终修复决策由专业人员结合实物状态作出。")
 
 
 kb = load_kb(str(KNOWLEDGE), knowledge_signature(KNOWLEDGE))
@@ -234,31 +234,42 @@ tabs = st.tabs(
 
 # 1. 辅助分析：面向馆员的主工作区
 with tabs[0]:
-    st.markdown("#### 场景输入")
-    st.caption("面向馆藏古籍病害问题，提供知识检索、关联分析与候选修复工序的可解释辅助建议。")
+    st.markdown("#### 病害查询与辅助分析")
+    st.caption("输入馆藏古籍及病害情况，查询相关知识并查看可核查的候选修复工序。")
+
+    with st.expander("使用说明", expanded=False):
+        st.write(
+            "① 选择已有古籍档案，或直接在右侧输入古籍名称与病害；"
+            "② 系统查询现有知识关系并给出候选修复工序；"
+            "③ 查看依据后，由专业人员结合实物情况复核。"
+        )
+
     c1, c2 = st.columns([1, 2], gap="large")
     with c1:
         selected = st.selectbox("可选：指定古籍档案", ["（自动识别）"] + books)
         st.caption("示例问题")
         if st.button("《天工开物》：水渍", use_container_width=True):
-            st.session_state["q"] = "《天工开物》有水渍，模型能推荐什么修复工序？请解释推理路径。"
+            st.session_state["q"] = "《天工开物》存在水渍，请查询相关修复工序并说明依据。"
         if st.button("《天工开物》：纸张发黄", use_container_width=True):
-            st.session_state["q"] = "《天工开物》纸张发黄，当前知识库能推荐什么？"
+            st.session_state["q"] = "《天工开物》存在纸张发黄，请查询当前知识库中的相关修复工序。"
         if st.button("情景推演：史记 / 酸化", use_container_width=True):
-            st.session_state["q"] = "假设史记当前存在酸化，模型能推演出什么候选修复工序？"
+            st.session_state["q"] = "假设《史记》当前存在酸化，请根据现有知识关系进行情景查询。"
 
     with c2:
         q = st.text_area(
             "输入古籍与病害情况",
             value=st.session_state.get(
                 "q",
-                "《天工开物》存在水渍，请给出本体推理结果并解释依据。",
+                "《天工开物》存在水渍，请查询相关修复工序并说明依据。",
             ),
             height=122,
         )
-        if st.button("开始分析", type="primary", use_container_width=True):
-            default_book = None if selected == "（自动识别）" else selected
-            st.session_state["last_result"] = agent.run(q, selected_book=default_book)
+        if st.button("开始查询", type="primary", use_container_width=True):
+            if not q.strip():
+                st.warning("请先输入古籍名称、病害情况或查询问题。")
+            else:
+                default_book = None if selected == "（自动识别）" else selected
+                st.session_state["last_result"] = agent.run(q, selected_book=default_book)
 
     result = st.session_state.get("last_result")
     if result:
@@ -268,7 +279,7 @@ with tabs[0]:
         hits = result["hits"]
 
         st.divider()
-        st.markdown("## 分析结果")
+        st.markdown("## 查询结果")
 
         obj_col, status_col = st.columns([2, 1])
         with obj_col:
@@ -295,7 +306,7 @@ with tabs[0]:
                 st.info("未识别到可执行的病害—工序关系")
 
         if recs:
-            st.markdown("### 本体推理结果")
+            st.markdown("### 相关修复工序")
             rows = []
             for r in recs:
                 label = f"候选修复工序：{r.process}"
@@ -321,7 +332,7 @@ with tabs[0]:
                             "古籍": r.book,
                             "病害": r.disease,
                             "候选修复工序": r.process,
-                            "依据性质": basis,
+                            "依据": basis,
                         }
                     )
 
@@ -340,12 +351,11 @@ with tabs[0]:
                 )
 
         if hits:
-            st.markdown("### 依据检索")
-            st.caption("以下内容用于补充解释与审计，不等同于自动生成新的修复规则。")
+            st.markdown("### 参考资料")
+            st.caption("以下资料用于补充说明结果来源，不会自动改变本体中的修复规则。")
             for h in hits:
                 with st.expander(h.source, expanded=False):
                     st.write(h.text[:900].strip())
-                    st.caption(f"检索匹配度：{h.score:.2f}")
 
         if llm_client.configured():
             with st.expander("综合说明", expanded=True):
@@ -358,20 +368,20 @@ with tabs[0]:
 
 # 2. 知识检索：把“古籍档案”和“工序知识”归并为同一业务模块
 with tabs[1]:
-    st.markdown("#### 领域知识检索")
+    st.markdown("#### 知识查询")
     st.caption("浏览本体中的古籍档案、病害关系与修复工序知识。")
     knowledge_tabs = st.tabs(["古籍档案", "修复工序"])
 
     with knowledge_tabs[0]:
         if books:
             b = st.selectbox("选择古籍", books, key="profile_book")
-            st.markdown("### 档案卡")
+            st.markdown("### 古籍信息")
             profile = engine.book_profile(b)
             for k, v in profile.items():
                 if k != "古籍":
                     st.write(f"**{k}：** {v}")
 
-            st.markdown("### 结构化病害关系")
+            st.markdown("### 病害与工序关联")
             diseases = engine.object_values(b, "具有病害")
             if diseases:
                 for d in diseases:
@@ -381,7 +391,7 @@ with tabs[1]:
                     else:
                         st.write(f"- **{b}** —具有病害→ **{d}**（暂无工序映射）")
             else:
-                st.info("该古籍在当前 RDF 中暂无“具有病害”对象属性断言。")
+                st.info("当前知识库中尚未为该古籍建立可参与推理的病害关联。")
 
     with knowledge_tabs[1]:
         processes = engine.all_processes()
@@ -492,12 +502,30 @@ with tabs[2]:
     with audit_tabs[2]:
         result = st.session_state.get("last_result")
         if not result:
-            st.info("先在“辅助分析”运行一次分析，这里会显示系统处理记录。")
+            st.info("先在“辅助分析”完成一次查询，这里会显示系统处理记录。")
         else:
-            st.caption("展示实体识别、本体查询、规则推理、知识检索与语言整理的执行顺序。")
+            st.caption("按顺序展示本次查询经过的主要处理环节，便于复核结果来源。")
+            step_names = {
+                "entity_understanding": "识别古籍与病害",
+                "ontology_query_and_rule": "查询本体关系与规则",
+                "local_rag": "检索参考资料",
+                "llm_generation": "整理综合说明",
+            }
             for i, step in enumerate(result["trace"], 1):
-                with st.expander(f"{i}. {step['tool']}", expanded=True):
-                    st.json(step)
+                title = step_names.get(step.get("tool"), step.get("tool", "处理步骤"))
+                with st.expander(f"{i}. {title}", expanded=(i <= 2)):
+                    if "input" in step:
+                        st.markdown("**输入**")
+                        if isinstance(step["input"], (dict, list)):
+                            st.json(step["input"])
+                        else:
+                            st.write(step["input"])
+                    if "output" in step:
+                        st.markdown("**结果**")
+                        if isinstance(step["output"], (dict, list)):
+                            st.json(step["output"])
+                        else:
+                            st.write(step["output"])
 
 # 4. 系统说明：保留方法、边界与技术路线
 with tabs[3]:
@@ -515,8 +543,8 @@ with tabs[3]:
 本系统通过领域本体组织古籍、病害、修复工序、材料与工具等知识，为高校图书馆馆员和古籍保护人员提供**知识检索、关联分析和候选修复工序的可解释辅助建议**。系统不自动制定完整修复方案，最终修复决策仍由专业人员结合古籍实物状态作出。
 
 ### 功能分层
-- **辅助分析**：面向馆藏古籍病害问题，提供知识检索、关联分析、候选修复工序与综合说明；
-- **知识检索**：浏览古籍档案与修复工序知识；
+- **辅助分析**：输入古籍及病害情况，查询相关知识并给出候选修复工序与依据；
+- **知识检索**：浏览古籍档案、病害关系与修复工序知识；
 - **推理记录**：查看推理路径、结构化覆盖情况与系统处理记录；
 - **系统说明**：说明技术路线、专业边界和当前知识覆盖范围。
 
