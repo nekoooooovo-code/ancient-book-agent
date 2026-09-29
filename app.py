@@ -7,6 +7,7 @@ from src.ontology_engine import OntologyEngine
 from src.rag import LocalKnowledgeBase
 from src.agent import AncientBookAgent
 from src import llm_client
+from src import professional_refs
 
 ROOT = Path(__file__).parent
 ONTOLOGY = ROOT / "data" / "天工开物古籍修复本体.rdf"
@@ -260,6 +261,85 @@ def _process_rows(process_name: str) -> list[dict]:
     return rows
 
 
+
+@st.cache_data(ttl=86400, show_spinner=False)
+def _ai_reference_query(diseases_key: tuple, processes_key: tuple) -> tuple[str, str]:
+    """
+    AI may expand search terms, but it never creates bibliographic entries.
+    Returned tuple: (query, method_label)
+    """
+    base = professional_refs.default_search_query(diseases_key, processes_key)
+    if not llm_client.configured():
+        return base, "规则生成检索词"
+
+    system = (
+        "You generate search keywords for academic literature retrieval. "
+        "Output exactly one short English search query of 4-12 words. "
+        "Focus on paper/book/library conservation. "
+        "Do not output paper titles, authors, DOI, URLs, explanations or citations."
+    )
+    user = (
+        f"Diseases: {', '.join(diseases_key) or 'unknown'}\n"
+        f"Candidate processes: {', '.join(processes_key) or 'unknown'}\n"
+        f"Fallback query: {base}"
+    )
+    try:
+        raw = llm_client.chat(system, user, timeout=25)
+        query = professional_refs.sanitize_ai_query(raw, base)
+        if query != base:
+            return query, "语言模型扩展检索词"
+    except Exception:
+        pass
+    return base, "规则生成检索词"
+
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def _professional_reference_search(
+    diseases_key: tuple,
+    processes_key: tuple,
+    academic_query: str,
+) -> dict:
+    authority = professional_refs.authority_references(
+        diseases_key,
+        processes_key,
+        limit=6,
+    )
+    academic, error = professional_refs.search_crossref(
+        academic_query,
+        rows=5,
+        timeout=10,
+    )
+    return {
+        "authority": authority,
+        "academic": academic,
+        "error": error,
+    }
+
+
+def _display_reference_item(ref: dict) -> None:
+    category = ref.get("category", "资料")
+    title = ref.get("title", "未命名资料")
+    url = ref.get("url", "")
+    source = ref.get("source", "")
+    year = ref.get("year", "")
+    authors = ref.get("authors", "")
+    journal = ref.get("journal", "")
+    note = ref.get("note", "")
+
+    if url:
+        st.markdown(f"**[{category}] [{title}]({url})**")
+    else:
+        st.markdown(f"**[{category}] {title}**")
+
+    meta = " · ".join(x for x in [source, journal, year] if x)
+    if meta:
+        st.caption(meta)
+    if authors:
+        st.caption(f"作者：{authors}")
+    if note:
+        st.write(note)
+
+
 tabs = st.tabs(["查询", "关于系统"])
 
 # =========================================================
@@ -462,19 +542,67 @@ with tabs[0]:
             else:
                 st.write("本次查询未形成可继续推理的病害—工序关系。")
 
+        # ----- 专业资料检索：真实来源先检索，AI只扩展检索词 -----
+        diseases_for_refs = tuple(parsed.get("diseases", []))
+        processes_for_refs = tuple(dict.fromkeys(r.process for r in recs))
+        academic_query, query_method = _ai_reference_query(
+            diseases_for_refs,
+            processes_for_refs,
+        )
+        ref_result = _professional_reference_search(
+            diseases_for_refs,
+            processes_for_refs,
+            academic_query,
+        )
+
+        st.markdown("### 专业参考资料")
+        st.caption(
+            "优先匹配国家标准和专业机构资料，并通过 Crossref 检索真实学术元数据。"
+            "语言模型仅用于扩展检索词，不生成论文标题、作者或 DOI。"
+        )
+
+        authority_refs = ref_result["authority"]
+        academic_refs = ref_result["academic"]
+
+        if authority_refs:
+            st.markdown("#### 标准与专业机构资料")
+            for i, ref in enumerate(authority_refs):
+                _display_reference_item(ref)
+                if i < len(authority_refs) - 1:
+                    st.markdown("---")
+
+        if academic_refs:
+            st.markdown("#### 相关学术研究")
+            for i, ref in enumerate(academic_refs):
+                _display_reference_item(ref)
+                if i < len(academic_refs) - 1:
+                    st.markdown("---")
+        elif ref_result["error"]:
+            st.caption(
+                "学术元数据检索暂时无法连接；上方国家标准与专业机构资料仍可正常使用。"
+            )
+
+        with st.expander("检索说明", expanded=False):
+            st.write(f"**学术检索词：** {academic_query}")
+            st.write(f"**检索词生成：** {query_method}")
+            st.write(
+                "学术论文条目来自 Crossref 元数据接口；标准和机构资料来自系统内置的已核验来源目录。"
+                "检索结果用于寻找原始依据，具体内容应以链接中的原文为准。"
+            )
+
         if hits:
-            with st.expander("查看参考资料", expanded=False):
-                st.caption("以下资料用于补充说明，不会自动改变知识库中的修复规则。")
+            with st.expander("本地知识库说明", expanded=False):
+                st.caption("以下为项目本地说明材料，不作为外部专业文献引用。")
                 for h in hits:
                     st.markdown(f"**{h.source}**")
-                    st.write(h.text[:900].strip())
+                    st.write(h.text[:700].strip())
                     st.divider()
 
         with st.expander("查看系统处理记录", expanded=False):
             step_names = {
                 "entity_understanding": "识别古籍与病害",
                 "ontology_query_and_rule": "查询知识关系与规则",
-                "local_rag": "检索参考资料",
+                "local_rag": "检索本地说明资料",
                 "llm_generation": "整理补充说明",
             }
             for i, step in enumerate(result["trace"], 1):
@@ -513,8 +641,9 @@ with tabs[1]:
     st.markdown("#### 技术说明")
     st.write(
         "系统读取 Protégé 导出的 RDF 本体，以“古籍—病害—修复工序—材料—工具”等关系组织知识。"
-        "候选工序由已有关系和属性链规则产生；语言模型仅用于理解问题和整理说明文字，"
-        "不负责自行生成修复规则。"
+        "候选工序由已有关系和属性链规则产生；专业参考资料优先匹配国家标准和专业机构来源，"
+        "并通过 Crossref 检索真实学术元数据。语言模型用于理解问题、扩展检索词和整理说明，"
+        "不负责自行生成修复规则或虚构参考文献。"
     )
 
     with st.expander("当前知识库规模", expanded=False):
