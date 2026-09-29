@@ -14,7 +14,7 @@ DEMO = ROOT / "data" / "demo_ontology.ttl"
 KNOWLEDGE = ROOT / "knowledge"
 
 st.set_page_config(
-    page_title="古籍智护 Agent",
+    page_title="古籍保护知识辅助系统",
     page_icon="📚",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -23,50 +23,119 @@ st.set_page_config(
 st.markdown(
     """
 <style>
-.block-container {
-    padding-top: 1.0rem;
-    padding-bottom: 3rem;
-    max-width: 1280px;
+:root {
+    --paper: #fbfaf6;
+    --paper-deep: #f3f0e8;
+    --ink: #292722;
+    --muted: #777268;
+    --line: #d8d2c7;
+    --accent: #7a3730;
 }
+
+[data-testid="stAppViewContainer"] {
+    background: var(--paper);
+    color: var(--ink);
+}
+
+.block-container {
+    padding-top: 1.25rem;
+    padding-bottom: 3rem;
+    max-width: 1180px;
+}
+
+[data-testid="stSidebar"] {
+    background: var(--paper-deep);
+    border-right: 1px solid var(--line);
+}
+
+[data-testid="stSidebar"] h1,
+[data-testid="stSidebar"] h2,
+[data-testid="stSidebar"] h3 {
+    color: var(--ink);
+}
+
+/* 顶部题签：去掉渐变、胶囊标签和大圆角 */
 .hero {
-    padding: 1.15rem 1.35rem;
-    border: 1px solid rgba(49, 51, 63, 0.12);
-    border-radius: 18px;
-    background: linear-gradient(135deg, rgba(248,249,252,0.98), rgba(240,246,255,0.92));
-    margin-bottom: 1rem;
+    padding: 0.9rem 0 1rem 0;
+    margin-bottom: 1.2rem;
+    border-bottom: 2px solid var(--accent);
 }
 .hero-title {
-    font-size: 2.05rem;
-    font-weight: 800;
-    line-height: 1.25;
-    margin: 0 0 .35rem 0;
+    font-family: "Noto Serif SC", "Songti SC", "STSong", serif;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    line-height: 1.35;
+    color: var(--ink);
+    margin: 0;
 }
 .hero-sub {
-    color: #5f6570;
-    font-size: 1rem;
-    margin-bottom: .8rem;
+    color: var(--muted);
+    font-size: .98rem;
+    margin-top: .45rem;
 }
-.badge {
-    display: inline-block;
-    padding: .18rem .62rem;
-    border: 1px solid rgba(49,51,63,.22);
-    border-radius: 999px;
-    margin: 0 .35rem .3rem 0;
-    font-size: .82rem;
-    background: rgba(255,255,255,.8);
+.hero-meta {
+    color: var(--accent);
+    font-size: .86rem;
+    margin-top: .55rem;
+    letter-spacing: .03em;
 }
-.section-note {
-    color: #6b7280;
-    font-size: .88rem;
-}
+
+/* 降低“AI SaaS 卡片感” */
 div[data-testid="stMetric"] {
-    border: 1px solid rgba(49, 51, 63, 0.10);
-    padding: .72rem .82rem;
-    border-radius: 14px;
-    background: rgba(250,250,252,.65);
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    padding: .45rem .1rem;
+    border-radius: 0;
+    background: transparent;
 }
-div[data-testid="stSidebar"] {
-    border-right: 1px solid rgba(49,51,63,.08);
+
+div[data-testid="stVerticalBlockBorderWrapper"] {
+    border-color: var(--line) !important;
+    border-radius: 4px !important;
+}
+
+/* 按钮更像馆内业务系统 */
+.stButton > button {
+    border-radius: 3px;
+    border: 1px solid #aaa397;
+    background: #fffdfa;
+    color: var(--ink);
+    box-shadow: none;
+}
+.stButton > button:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+.stButton > button[kind="primary"] {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+}
+
+/* 输入框、选择框收敛圆角 */
+[data-baseweb="select"] > div,
+[data-baseweb="textarea"] textarea,
+[data-baseweb="input"] input {
+    border-radius: 3px !important;
+}
+
+/* 标签页更克制 */
+button[data-baseweb="tab"] {
+    font-weight: 500;
+    padding-left: .75rem;
+    padding-right: .75rem;
+}
+button[data-baseweb="tab"][aria-selected="true"] {
+    color: var(--accent);
+}
+
+/* 标题更接近文献/档案系统 */
+h1, h2, h3 {
+    letter-spacing: .015em;
+}
+h2, h3 {
+    color: var(--ink);
 }
 </style>
 """,
@@ -103,8 +172,8 @@ def knowledge_signature(folder: Path) -> tuple:
 
 
 with st.sidebar:
-    st.header("知识底座")
-    st.caption("默认读取项目内置的真实 Protégé RDF；也可临时上传其他本体进行测试。")
+    st.header("知识库")
+    st.caption("默认读取项目内置本体；需要时可临时上传其他 RDF / OWL / TTL 文件。")
     uploaded = st.file_uploader(
         "可选：上传新的 Protégé 本体（.rdf/.owl/.ttl）",
         type=["rdf", "owl", "ttl"],
@@ -129,13 +198,13 @@ with st.sidebar:
     st.caption("属性链状态：" + ("✅ 已识别" if engine.has_property_chain() else "⚠️ 未识别"))
 
     st.divider()
-    st.header("Agent 模式")
+    st.header("运行状态")
     if llm_client.configured():
-        st.success("LLM 已连接")
-        st.caption("大模型仅负责自然语言组织；事实查询与规则推理由本体执行。")
+        st.success("语言模型已连接")
+        st.caption("语言模型用于整理表述；事实查询与规则推理由本体执行。")
     else:
-        st.info("当前为可审计规则模式")
-        st.caption("无需大模型也可完成本体查询、属性链推理和知识检索。")
+        st.info("当前使用规则模式")
+        st.caption("本体查询、属性链推理和知识检索可独立运行。")
 
     st.divider()
     st.caption("专业边界：系统只提供知识组织、检索和解释性辅助，不替代古籍修复专业人员的现场判断与操作。")
@@ -147,13 +216,9 @@ agent = AncientBookAgent(engine, kb)
 st.markdown(
     """
 <div class="hero">
-  <div class="hero-title">📚 古籍智护 Agent</div>
-  <div class="hero-sub">面向高校图书馆的古籍病害知识组织与可解释修复辅助决策原型</div>
-  <span class="badge">真实 Protégé 本体</span>
-  <span class="badge">馆员主导</span>
-  <span class="badge">AI 辅助</span>
-  <span class="badge">规则可审计</span>
-  <span class="badge">推理可解释</span>
+  <div class="hero-title">古籍智护</div>
+  <div class="hero-sub">古籍保护知识辅助系统</div>
+  <div class="hero-meta">知识组织 · 规则推理 · 人工复核</div>
 </div>
 """,
     unsafe_allow_html=True,
@@ -163,33 +228,28 @@ books = engine.all_books()
 if not books:
     st.warning("没有识别到“古籍文献”实例。请确认上传本体中的类名/属性名。")
 
-st.caption(
-    "系统状态：真实 Protégé RDF 已加载 ｜ 属性链规则已识别 ｜ "
-    + ("LLM 已连接" if llm_client.configured() else "LLM 未连接")
-)
-
 tabs = st.tabs(
-    ["🧭 智能分析", "📚 知识检索", "🔎 推理审计", "ℹ️ 系统说明"]
+    ["辅助分析", "知识检索", "推理记录", "系统说明"]
 )
 
-# 1. 智能分析：面向馆员的主工作区
+# 1. 辅助分析：面向馆员的主工作区
 with tabs[0]:
     st.markdown("#### 场景输入")
-    st.caption("描述古籍与病害，系统将调用本体规则、知识库和大模型生成可解释的辅助分析结果。")
+    st.caption("输入古籍与病害情况，系统依据本体关系和现有知识给出可核查的分析结果。")
     c1, c2 = st.columns([1, 2], gap="large")
     with c1:
         selected = st.selectbox("可选：指定古籍档案", ["（自动识别）"] + books)
-        st.caption("快速演示")
-        if st.button("《天工开物》有水渍，模型能推荐什么？", use_container_width=True):
+        st.caption("示例问题")
+        if st.button("《天工开物》：水渍", use_container_width=True):
             st.session_state["q"] = "《天工开物》有水渍，模型能推荐什么修复工序？请解释推理路径。"
-        if st.button("《天工开物》纸张发黄怎么办？", use_container_width=True):
+        if st.button("《天工开物》：纸张发黄", use_container_width=True):
             st.session_state["q"] = "《天工开物》纸张发黄，当前知识库能推荐什么？"
-        if st.button("情景推演：史记 + 酸化", use_container_width=True):
+        if st.button("情景推演：史记 / 酸化", use_container_width=True):
             st.session_state["q"] = "假设史记当前存在酸化，模型能推演出什么候选修复工序？"
 
     with c2:
         q = st.text_area(
-            "向智能体描述古籍与病害",
+            "输入古籍与病害情况",
             value=st.session_state.get(
                 "q",
                 "《天工开物》存在水渍，请给出本体推理结果并解释依据。",
@@ -288,7 +348,7 @@ with tabs[0]:
                     st.caption(f"检索匹配度：{h.score:.2f}")
 
         if llm_client.configured():
-            with st.expander("AI 综合说明（基于本体结果）", expanded=True):
+            with st.expander("综合说明", expanded=True):
                 st.markdown(result["answer"])
 
         st.info(
@@ -298,8 +358,8 @@ with tabs[0]:
 # 2. 知识检索：把“古籍档案”和“工序知识”归并为同一业务模块
 with tabs[1]:
     st.markdown("#### 领域知识检索")
-    st.caption("浏览本体中的古籍档案与修复工序知识，不涉及自动决策。")
-    knowledge_tabs = st.tabs(["📖 古籍档案", "🧪 修复工序"])
+    st.caption("浏览本体中的古籍档案、病害关系与修复工序知识。")
+    knowledge_tabs = st.tabs(["古籍档案", "修复工序"])
 
     with knowledge_tabs[0]:
         if books:
@@ -334,9 +394,9 @@ with tabs[1]:
 
 # 3. 推理审计：把“推理图谱”和“Agent轨迹”归并，强调可解释/可审计
 with tabs[2]:
-    st.markdown("#### 推理审计")
-    st.caption("查看系统如何从本体事实、属性链与工具调用得到结果，便于馆员复核。")
-    audit_tabs = st.tabs(["🕸️ 推理路径", "🧾 覆盖检查", "🧰 Agent 轨迹"])
+    st.markdown("#### 推理记录")
+    st.caption("查看本体事实、属性链推理及系统处理过程，便于复核结果来源。")
+    audit_tabs = st.tabs(["推理路径", "覆盖检查", "处理记录"])
 
     with audit_tabs[0]:
         if books:
@@ -376,7 +436,7 @@ with tabs[2]:
                     st.caption("该古籍档案中目前也没有“破损状况”文字著录。")
 
                 st.markdown(
-                    "**如需测试：** 可前往“智能分析”输入一个临时病害情景。"
+                    "**如需测试：** 可前往“辅助分析”输入一个临时病害情景。"
                     "系统会明确标记为“情景推演”，不会把临时输入冒充为本体中的馆藏事实。"
                 )
 
@@ -431,9 +491,9 @@ with tabs[2]:
     with audit_tabs[2]:
         result = st.session_state.get("last_result")
         if not result:
-            st.info("先在“智能分析”运行一次分析，这里会显示 Agent 的工具调用轨迹。")
+            st.info("先在“辅助分析”运行一次分析，这里会显示系统处理记录。")
         else:
-            st.caption("展示实体理解、本体查询、规则推理、本地知识检索与大模型组织回答的执行顺序。")
+            st.caption("展示实体识别、本体查询、规则推理、知识检索与语言整理的执行顺序。")
             for i, step in enumerate(result["trace"], 1):
                 with st.expander(f"{i}. {step['tool']}", expanded=True):
                     st.json(step)
@@ -442,20 +502,21 @@ with tabs[2]:
 with tabs[3]:
     st.markdown("### 当前知识底座")
     stats = engine.ontology_stats()
-    metric_cols = st.columns(6)
-    for i, (k, v) in enumerate(stats.items()):
-        metric_cols[i].metric(k, v)
-    st.caption("以上为当前加载的真实 Protégé RDF 规模与规则覆盖情况。")
+    stats_df = pd.DataFrame(
+        [{"项目": k, "数量": v} for k, v in stats.items()]
+    )
+    st.dataframe(stats_df, use_container_width=True, hide_index=True)
+    st.caption("以上为当前加载本体的规模与规则覆盖情况。")
 
     st.markdown(
         """
 ### 系统定位
-本原型不是自动修复系统，而是面向高校图书馆馆员和古籍保护人员的**知识组织与辅助决策工具**。
+本系统面向高校图书馆馆员和古籍保护人员，用于**知识组织、资料检索与辅助判断**，不替代专业修复人员的现场判断。
 
 ### 功能分层
-- **智能分析**：面向实际业务问题，输出候选工序、知识边界与AI综合说明；
+- **辅助分析**：面向实际业务问题，输出候选工序、知识边界与综合说明；
 - **知识检索**：浏览古籍档案与修复工序知识；
-- **推理审计**：查看推理路径、结构化覆盖情况与 Agent 工具调用轨迹；
+- **推理记录**：查看推理路径、结构化覆盖情况与系统处理记录；
 - **系统说明**：说明技术路线、专业边界和当前知识覆盖范围。
 
 ### 技术路线
@@ -463,7 +524,7 @@ with tabs[3]:
 2. **规则推理**：执行 RDF 中已存在的“具有病害 o 适用修复工序 ⊑ 建议修复工序”属性链逻辑；
 3. **本地知识检索**：从 `knowledge/` 检索可审计说明材料；正式应用应继续接入权威修复规范与馆内制度；
 4. **LLM 辅助**：只负责自然语言理解和回答组织，本体事实与规则作为约束；
-5. **可解释展示**：公开实体、规则、推理路径和 Agent 工具轨迹。
+5. **可解释展示**：公开实体、规则、推理路径和处理记录。
 
 ### 当前 RDF 的真实边界
 - 《天工开物》显式关联“水渍”“纸张发黄”；
