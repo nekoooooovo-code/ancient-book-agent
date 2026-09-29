@@ -23,6 +23,24 @@ def _tokens(text: str) -> set[str]:
     return {x for x in grams | words if x}
 
 
+def _display_source(path: Path, text: str) -> str:
+    """Use the document's first Markdown heading as a human-readable source label.
+
+    This avoids exposing mojibake/garbled filenames caused by ZIP extraction on
+    some Windows environments.
+    """
+    if path.suffix.lower() == ".md":
+        for line in text.splitlines():
+            line = line.strip()
+            if line.startswith("#"):
+                title = line.lstrip("#").strip()
+                if title:
+                    return title
+    # Fallback: use the stem, but strip numeric prefixes such as 01_
+    name = re.sub(r"^\d+[_\-\s]*", "", path.stem).strip()
+    return name or "本地知识文档"
+
+
 class LocalKnowledgeBase:
     def __init__(self, folder: str | Path):
         self.folder = Path(folder)
@@ -42,10 +60,12 @@ class LocalKnowledgeBase:
                     text = "\n".join((p.extract_text() or "") for p in reader.pages)
             except Exception:
                 continue
+
+            source = _display_source(path, text)
             for block in re.split(r"\n\s*\n", text):
                 block = block.strip()
                 if len(block) >= 20:
-                    chunks.append((path.name, block))
+                    chunks.append((source, block))
         return chunks
 
     def search(self, query: str, top_k: int = 3) -> list[Hit]:
