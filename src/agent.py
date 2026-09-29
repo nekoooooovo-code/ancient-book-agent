@@ -4,13 +4,18 @@ from .ontology_engine import OntologyEngine
 from .rag import LocalKnowledgeBase
 from . import llm_client
 
-SYSTEM = """你是高校图书馆古籍保护辅助智能体。必须遵循：
-1. 本体推理结果、用户临时情景输入与文献检索内容必须分开陈述。
-2. 不得把模型验证映射包装成普遍适用的修复规范。
-3. 若知识库没有支持某病害与工序的映射，明确说“当前知识库暂无规则”，不要自行补造。
-4. 用户输入一个“古籍+病害”但本体没有该古籍的病害断言时，只能称为“情景推演”，不能称为馆藏事实。
-5. 始终强调馆员/修复专业人员主导，AI只提供知识组织、检索与解释性辅助。
-6. 输出简洁、可审计，优先给出推理路径和来源。
+SYSTEM = """你是高校图书馆古籍保护辅助智能体。回答必须严格受提供的本体事实与本地知识检索内容约束。
+
+规则：
+1. 先给出结论，再简要解释本体推理依据。
+2. 不要机械重复整段知识库原文，不要把检索结果逐条照抄。
+3. 本体事实、用户临时情景与知识库补充说明必须区分清楚。
+4. 不得把模型验证映射包装成普遍适用的专业修复规范。
+5. 若当前本体没有病害—工序映射，明确说明“当前知识库暂无规则”，不得自行补造工序。
+6. 若用户输入的病害与本体已有断言一致，应说明“用户输入与本体已有断言一致”。
+7. 若用户输入一个本体中不存在的古籍或不存在的病害断言，只能称为“情景推演”，不得称为馆藏事实。
+8. 始终强调馆员/修复专业人员主导，AI只负责自然语言理解、知识组织、检索与解释性辅助。
+9. 默认用2—4段简洁中文回答，除非确有必要，不使用长列表。
 """
 
 
@@ -23,11 +28,31 @@ class AncientBookAgent:
         trace = []
         trace.append({"tool": "entity_understanding", "input": question})
         parsed = self.engine.infer_from_text(question, default_book=selected_book)
+
+        # Reconcile user-entered diseases with ontology assertions so the UI can
+        # distinguish "new scenario" from "user input that matches known facts".
+        ontology_diseases = set()
+        if parsed.get("book") and parsed.get("book_in_ontology", False):
+            ontology_diseases = set(self.engine.object_values(parsed["book"], "具有病害"))
+
+        entered = set(parsed.get("diseases", []))
+        if parsed["explicit_from_user"]:
+            if entered and entered.issubset(ontology_diseases):
+                disease_source = "用户输入，且与本体已有断言一致"
+            elif entered & ontology_diseases:
+                disease_source = "用户输入；部分与本体已有断言一致"
+            else:
+                disease_source = "用户输入情景"
+        else:
+            disease_source = "本体已有断言/档案"
+
+        parsed["disease_source"] = disease_source
+
         trace[-1]["output"] = {
             "book": parsed["book"],
             "diseases": parsed["diseases"],
             "mentions": parsed["mentions"],
-            "disease_source": "用户情景输入" if parsed["explicit_from_user"] else "本体已有断言/档案",
+            "disease_source": disease_source,
         }
 
         trace.append({"tool": "ontology_query_and_rule", "input": {"book": parsed["book"], "diseases": parsed["diseases"]}})
@@ -47,7 +72,19 @@ class AncientBookAgent:
             trace.append({"tool": "llm_generation", "input": "ontology facts + local knowledge hits"})
             context = self._context(parsed, hits)
             try:
-                answer = llm_client.chat(SYSTEM, f"用户问题：{question}\n\n可用事实：\n{context}\n\n请生成辅助答复。")
+                answer = llm_client.chat(
+                    SYSTEM,
+                    f"""用户问题：{question}
+
+可用事实：
+{context}
+
+请基于以上事实生成面向馆员的简洁说明：
+- 第一段直接说明当前本体得到的候选工序或“暂无规则”；
+- 第二段说明推理依据及事实来源；
+- 最后一两句说明专业边界；
+- 不要逐条复述知识库检索结果，不要引入可用事实之外的新修复步骤。"""
+                )
                 trace[-1]["output"] = "LLM response generated"
             except Exception as e:
                 trace[-1]["output"] = f"LLM failed; fallback template used: {type(e).__name__}"
@@ -67,7 +104,7 @@ class AncientBookAgent:
         for d in parsed["unresolved"]:
             lines.append(f"病害 {d}：当前本体未建立适用修复工序映射。")
         for h in hits:
-            lines.append(f"知识库[{h.source}]：{h.text[:500]}")
+            lines.append(f"知识库[{h.source}]（仅作补充说明）：{h.text[:260]}")
         return "\n".join(lines)
 
     def _template_answer(self, parsed, hits):
