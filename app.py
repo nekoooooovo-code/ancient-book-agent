@@ -63,7 +63,7 @@ st.markdown(
 }
 .hero-title {
     font-family: "Noto Serif SC", "Songti SC", "STSong", serif;
-    font-size: 2rem;
+    font-size: 1.9rem;
     font-weight: 700;
     letter-spacing: .04em;
     line-height: 1.35;
@@ -72,12 +72,12 @@ st.markdown(
 }
 .hero-sub {
     color: var(--muted);
-    font-size: .98rem;
+    font-size: 1rem;
     margin-top: .45rem;
 }
 .hero-meta {
     color: var(--accent);
-    font-size: .86rem;
+    font-size: .84rem;
     margin-top: .55rem;
     letter-spacing: .03em;
 }
@@ -132,11 +132,105 @@ button[data-baseweb="tab"][aria-selected="true"] {
 }
 
 /* 标题更接近文献/档案系统 */
-h1, h2, h3 {
+h1, h2, h3, h4 {
     letter-spacing: .015em;
-}
-h2, h3 {
     color: var(--ink);
+}
+
+/* ------------------------------
+   字号层级
+   以 15.5px 正文为基准，避免大小跳跃
+------------------------------ */
+
+/* 页面正文 */
+.stMarkdown p,
+.stMarkdown li,
+[data-testid="stAlert"] p {
+    font-size: 15.5px;
+    line-height: 1.72;
+}
+
+/* 查询结果等一级内容标题 */
+h2 {
+    font-size: 24px !important;
+    line-height: 1.35 !important;
+    margin-top: 1.45rem !important;
+    margin-bottom: .75rem !important;
+}
+
+/* “古籍病害查询 / 候选修复工序 / 专业参考资料” */
+h3 {
+    font-size: 20px !important;
+    line-height: 1.4 !important;
+    margin-top: 1.2rem !important;
+    margin-bottom: .55rem !important;
+}
+
+/* “水洗 / 标准与专业机构资料 / 相关学术研究” */
+h4 {
+    font-size: 17px !important;
+    line-height: 1.45 !important;
+    margin-top: 1rem !important;
+    margin-bottom: .4rem !important;
+}
+
+/* 辅助说明：明显小于正文，但不至于太小 */
+[data-testid="stCaptionContainer"],
+[data-testid="stCaptionContainer"] p,
+.stCaption {
+    font-size: 12.8px !important;
+    line-height: 1.55 !important;
+    color: var(--muted) !important;
+}
+
+/* 表单标签 */
+[data-testid="stWidgetLabel"] p {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+}
+
+/* 输入内容 */
+[data-baseweb="textarea"] textarea,
+[data-baseweb="input"] input,
+[data-baseweb="select"] {
+    font-size: 14.5px !important;
+}
+
+/* 按钮文字 */
+.stButton > button,
+.stButton > button p {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+}
+
+/* 顶部一级标签 */
+button[data-baseweb="tab"] {
+    font-size: 15px !important;
+}
+
+/* 折叠项标题 */
+details summary,
+[data-testid="stExpander"] summary p {
+    font-size: 14.5px !important;
+    font-weight: 600 !important;
+}
+
+/* 侧栏比主页面稍小 */
+[data-testid="stSidebar"] .stMarkdown p,
+[data-testid="stSidebar"] [data-testid="stWidgetLabel"] p {
+    font-size: 13.5px !important;
+    line-height: 1.6 !important;
+}
+
+/* 强调文字不要显得过粗 */
+.stMarkdown strong {
+    font-weight: 600;
+}
+
+/* 表格上下留白更紧凑 */
+[data-testid="stDataFrame"] {
+    margin-top: .35rem;
+    margin-bottom: .7rem;
 }
 </style>
 """,
