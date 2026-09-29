@@ -1,0 +1,772 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2/"
+     xml:base="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2/"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:untitled-ontology-2="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#">
+    <owl:Ontology rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#产出成品 -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#产出成品">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工序"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#成品"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#使用原料 -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#使用原料">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工序"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#原料"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#使用工具 -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#使用工具">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工序"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工具"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#具有病害 -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#具有病害">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#古籍文献"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#病害"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#前置工序 -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#前置工序">
+        <owl:inverseOf rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#后续工序"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工序"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工序"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#包含成分 -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#包含成分">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#成品"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#原料"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#后续工序 -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#后续工序">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工序"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工序"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#建议修复工序 -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#建议修复工序">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#古籍文献"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#现代修复工序-延伸"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#具有病害"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#适用修复工序"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#适用修复工序 -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#适用修复工序">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#病害"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#现代修复工序-延伸"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#版本类型 -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#版本类型"/>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#破损状况 -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#破损状况"/>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#行款版式 -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#行款版式"/>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#装帧形式 -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#装帧形式"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#书装线材 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#书装线材"/>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#修复专用工具-延伸 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#修复专用工具-延伸">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工具"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#原料 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#原料"/>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#古籍文献 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#古籍文献">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#成品"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#呈色颜料 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#呈色颜料">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#成品"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工具 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工具"/>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工序 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工序"/>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#成品 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#成品"/>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#现代修复工序-延伸 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#现代修复工序-延伸">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工序"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#现代修复材料-延伸 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#现代修复材料-延伸">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#原料"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#病害 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#病害"/>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#纸张载体 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#纸张载体">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#成品"/>
+    </owl:Class>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#丝线 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#丝线">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#书装线材"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#切料捣浆 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#切料捣浆">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工序"/>
+        <untitled-ontology-2:使用工具 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#铁锤/杵臼"/>
+        <untitled-ontology-2:前置工序 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#蒸煮灰法"/>
+        <untitled-ontology-2:后续工序 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#药液加浆"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#压平 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#压平">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#现代修复工序-延伸"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#史记 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#史记">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#古籍文献"/>
+        <untitled-ontology-2:版本类型>南宋黄善夫刻本</untitled-ontology-2:版本类型>
+        <untitled-ontology-2:破损状况>虫蛀严重、絮化</untitled-ontology-2:破损状况>
+        <untitled-ontology-2:行款版式>半页十行，行十八字，细黑口，双鱼尾</untitled-ontology-2:行款版式>
+        <untitled-ontology-2:装帧形式>蝴蝶装</untitled-ontology-2:装帧形式>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#墨模 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#墨模">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工具"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#天工开物 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#天工开物">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#古籍文献"/>
+        <untitled-ontology-2:具有病害 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#水渍"/>
+        <untitled-ontology-2:具有病害 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#纸张发黄"/>
+        <untitled-ontology-2:版本类型>明崇祯十年涂本</untitled-ontology-2:版本类型>
+        <untitled-ontology-2:破损状况>纸张发黄、水渍</untitled-ontology-2:破损状况>
+        <untitled-ontology-2:行款版式>半页九行，行二十一字，白口，单鱼尾</untitled-ontology-2:行款版式>
+        <untitled-ontology-2:装帧形式>线装</untitled-ontology-2:装帧形式>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#嫩竹 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#嫩竹">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#原料"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#小麦淀粉 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#小麦淀粉">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#现代修复材料-延伸"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#打孔穿线 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#打孔穿线">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工序"/>
+        <untitled-ontology-2:使用原料 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#丝线"/>
+        <untitled-ontology-2:使用原料 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#麻线"/>
+        <untitled-ontology-2:使用工具 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#订书锥"/>
+        <untitled-ontology-2:使用工具 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#剪刀/裁纸刀"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#托裱 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#托裱">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#现代修复工序-延伸"/>
+        <untitled-ontology-2:使用原料 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#小麦淀粉"/>
+        <untitled-ontology-2:使用工具 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#棕刷"/>
+        <untitled-ontology-2:前置工序 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#溜口"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#抄纸竹帘 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#抄纸竹帘">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工具"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#拆页 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#拆页">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#现代修复工序-延伸"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#捶打入模 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#捶打入模">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工序"/>
+        <untitled-ontology-2:产出成品 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#松烟墨"/>
+        <untitled-ontology-2:使用工具 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#墨模"/>
+        <untitled-ontology-2:前置工序 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#胶墨搅拌"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#排笔 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#排笔">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#修复专用工具-延伸"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#揭表 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#揭表">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#现代修复工序-延伸"/>
+        <untitled-ontology-2:使用工具 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#马蹄刀"/>
+        <untitled-ontology-2:前置工序 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#水洗"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#斩竹漂塘 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#斩竹漂塘">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工序"/>
+        <untitled-ontology-2:使用原料 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#嫩竹"/>
+        <untitled-ontology-2:使用工具 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#抄纸竹帘"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#朱砂彩 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#朱砂彩">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#呈色颜料"/>
+        <untitled-ontology-2:包含成分 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#雄黄/朱砂"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#松木 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#松木">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#原料"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#松烟墨 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#松烟墨">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#呈色颜料"/>
+        <untitled-ontology-2:包含成分 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#松木"/>
+        <untitled-ontology-2:包含成分 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#动物胶/牛皮胶"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#构树皮 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#构树皮">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#原料"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#桐油 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#桐油">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#原料"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#桑皮 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#桑皮">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#原料"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#棕刷 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#棕刷">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#修复专用工具-延伸"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#楻桶 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#楻桶">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工具"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#榨床 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#榨床">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工具"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#榨纸脱水 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#榨纸脱水">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工序"/>
+        <untitled-ontology-2:使用工具 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#榨床"/>
+        <untitled-ontology-2:前置工序 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#荡料入帘"/>
+        <untitled-ontology-2:后续工序 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#透火焙干"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#水洗 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#水洗">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#现代修复工序-延伸"/>
+        <untitled-ontology-2:使用工具 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#排笔"/>
+        <untitled-ontology-2:前置工序 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#拆页"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#水渍 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#水渍">
+        <untitled-ontology-2:适用修复工序 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#水洗"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#永乐大典 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#永乐大典">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#古籍文献"/>
+        <untitled-ontology-2:版本类型>明嘉靖内府重录副本</untitled-ontology-2:版本类型>
+        <untitled-ontology-2:破损状况>书脑开裂、霉斑</untitled-ontology-2:破损状况>
+        <untitled-ontology-2:行款版式>半页八行，行十四字至二十八字不等，朱丝栏</untitled-ontology-2:行款版式>
+        <untitled-ontology-2:装帧形式>包背装</untitled-ontology-2:装帧形式>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#河图洛书原舛编 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#河图洛书原舛编">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#古籍文献"/>
+        <untitled-ontology-2:版本类型>清康熙刻本</untitled-ontology-2:版本类型>
+        <untitled-ontology-2:行款版式>半页九行，行二十字，白口，单鱼尾</untitled-ontology-2:行款版式>
+        <untitled-ontology-2:装帧形式>线装</untitled-ontology-2:装帧形式>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#溜口 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#溜口">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#现代修复工序-延伸"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#烟窑 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#烟窑">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工具"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#烧松取烟 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#烧松取烟">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工序"/>
+        <untitled-ontology-2:使用原料 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#松木"/>
+        <untitled-ontology-2:使用工具 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#烟窑"/>
+        <untitled-ontology-2:后续工序 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#胶墨搅拌"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#皮纸 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#皮纸">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#纸张载体"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#竹纸 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#竹纸">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#纸张载体"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#纸张发黄 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#纸张发黄"/>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#胶墨搅拌 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#胶墨搅拌">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工序"/>
+        <untitled-ontology-2:使用原料 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#动物胶/牛皮胶"/>
+        <untitled-ontology-2:前置工序 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#烧松取烟"/>
+        <untitled-ontology-2:后续工序 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#捶打入模"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#脱酸 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#脱酸">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#现代修复工序-延伸"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#草纸 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#草纸">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#纸张载体"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#荡料入帘 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#荡料入帘">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工序"/>
+        <untitled-ontology-2:使用原料 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#构树皮"/>
+        <untitled-ontology-2:使用工具 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#抄纸竹帘"/>
+        <untitled-ontology-2:前置工序 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#药液加浆"/>
+        <untitled-ontology-2:后续工序 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#榨纸脱水"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#药液加浆 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#药液加浆">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工序"/>
+        <untitled-ontology-2:使用工具 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#杀青槽/抄纸槽"/>
+        <untitled-ontology-2:前置工序 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#切料捣浆"/>
+        <untitled-ontology-2:后续工序 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#荡料入帘"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#蒸煮灰法 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#蒸煮灰法">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工序"/>
+        <untitled-ontology-2:使用工具 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#楻桶"/>
+        <untitled-ontology-2:前置工序 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#斩竹漂塘"/>
+        <untitled-ontology-2:后续工序 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#切料捣浆"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#藤皮 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#藤皮">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#原料"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#藤纸 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#藤纸">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#纸张载体"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#订书锥 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#订书锥">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工具"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#透火焙干 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#透火焙干">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工序"/>
+        <untitled-ontology-2:产出成品 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#皮纸"/>
+        <untitled-ontology-2:产出成品 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#竹纸"/>
+        <untitled-ontology-2:产出成品 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#草纸"/>
+        <untitled-ontology-2:使用工具 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#焙墙/火墙"/>
+        <untitled-ontology-2:前置工序 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#榨纸脱水"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#酸化 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#酸化">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#病害"/>
+        <untitled-ontology-2:适用修复工序 rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#脱酸"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#马蹄刀 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#马蹄刀">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#修复专用工具-延伸"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#麻线 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#麻线">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#书装线材"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#剪刀/裁纸刀 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#剪刀/裁纸刀">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工具"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#动物胶/牛皮胶 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#动物胶/牛皮胶">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#原料"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#杀青槽/抄纸槽 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#杀青槽/抄纸槽">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工具"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#焙墙/火墙 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#焙墙/火墙">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工具"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#铁锤/杵臼 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#铁锤/杵臼">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#工具"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#雄黄/朱砂 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#雄黄/朱砂">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#原料"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#麦秸/稻草 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#麦秸/稻草">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#原料"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#麻料/苎麻 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#麻料/苎麻">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lenovo/ontologies/2026/7/untitled-ontology-2#原料"/>
+    </owl:NamedIndividual>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 4.5.29.2024-05-13T12:11:03Z) https://github.com/owlcs/owlapi -->
+
