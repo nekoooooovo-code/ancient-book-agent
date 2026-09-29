@@ -728,11 +728,6 @@ with tabs[0]:
             academic_query,
         )
 
-        st.markdown("### 专业参考资料")
-        st.caption(
-            "按资料性质分组展示。规范性文件优先，其次为专业机构资料和相关学术研究。"
-        )
-
         authority_refs = ref_result["authority"]
         academic_refs = ref_result["academic"]
 
@@ -745,17 +740,29 @@ with tabs[0]:
             if ref not in standard_refs
         ]
 
-        _render_reference_group("规范与标准", standard_refs)
-        _render_reference_group("专业机构资料", institution_refs)
-        _render_reference_group("相关学术研究", academic_refs)
+        total_refs = len(standard_refs) + len(institution_refs) + len(academic_refs)
 
-        if not academic_refs and ref_result["error"]:
-            st.markdown(
-                '<div class="ref-empty-note">'
-                '学术元数据暂时无法连接；规范、标准和专业机构资料仍可正常使用。'
-                '</div>',
-                unsafe_allow_html=True,
+        with st.expander(
+            f"专业参考资料（{total_refs} 条）" if total_refs else "专业参考资料",
+            expanded=False,
+        ):
+            st.caption(
+                "按资料性质分组展示。规范性文件优先，其次为专业机构资料和相关学术研究。"
             )
+
+            _render_reference_group("规范与标准", standard_refs)
+            _render_reference_group("专业机构资料", institution_refs)
+            _render_reference_group("相关学术研究", academic_refs)
+
+            if not authority_refs and not academic_refs:
+                st.info("当前查询暂未检索到可展示的专业参考资料。")
+            elif not academic_refs and ref_result["error"]:
+                st.markdown(
+                    '<div class="ref-empty-note">'
+                    '学术元数据暂时无法连接；规范、标准和专业机构资料仍可正常使用。'
+                    '</div>',
+                    unsafe_allow_html=True,
+                )
 
         with st.expander("检索说明", expanded=False):
             st.write(f"**学术检索词：** {academic_query}")
