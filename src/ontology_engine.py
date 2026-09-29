@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from io import BytesIO
 from pathlib import Path
 from typing import Iterable, Optional
+import re
 
 from rdflib import Graph, RDF, RDFS, OWL, URIRef, Literal
 
@@ -207,20 +208,45 @@ class OntologyEngine:
 
     def infer_from_text(self, text: str, default_book: Optional[str] = None) -> dict:
         mentions = self.find_mentions(text)
-        book = mentions["books"][0] if mentions["books"] else default_book
+
+        # Prefer an ontology-known title. If the user names a work that is not yet
+        # an ontology individual, keep the title inside 《》 as a temporary
+        # scenario object instead of dropping it.
+        title_match = re.search(r"《\s*([^》]{1,80}?)\s*》", text)
+        user_title = title_match.group(1).strip() if title_match else None
+
+        if mentions["books"]:
+            book = mentions["books"][0]
+            book_source = "本体已有实例"
+        elif default_book:
+            book = default_book
+            book_source = "本体已有实例" if self.uri(book) else "用户指定对象"
+        elif user_title:
+            book = user_title
+            book_source = "用户输入对象"
+        else:
+            book = None
+            book_source = "未指定"
+
+        book_in_ontology = bool(book and self.uri(book))
         explicit_diseases = mentions["diseases"]
-        if book and not explicit_diseases:
+
+        if book and book_in_ontology and not explicit_diseases:
             diseases = self.object_values(book, "具有病害")
             explicit_from_user = False
         else:
             diseases = explicit_diseases
             explicit_from_user = bool(explicit_diseases)
+
         recs = self.recommendations(
             book or "未指定古籍", diseases, explicit_from_user=explicit_from_user
         ) if diseases else []
         unresolved = self.unresolved_diseases(diseases)
+
         return {
             "book": book,
+            "book_source": book_source,
+            "book_in_ontology": book_in_ontology,
             "diseases": diseases,
             "recommendations": recs,
             "unresolved": unresolved,
