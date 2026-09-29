@@ -2,6 +2,7 @@ from __future__ import annotations
 from pathlib import Path
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 
 from src.ontology_engine import OntologyEngine
 from src.rag import LocalKnowledgeBase
@@ -57,18 +58,23 @@ st.markdown(
 
 /* 顶部题签：去掉渐变、胶囊标签和大圆角 */
 .hero {
-    padding: 0.9rem 0 1rem 0;
+    padding: 1rem 0 1.05rem 0;
     margin-bottom: 1.2rem;
     border-bottom: 2px solid var(--accent);
+    overflow: visible;
 }
 .hero-title {
     font-family: "Noto Serif SC", "Songti SC", "STSong", serif;
-    font-size: 1.9rem;
+    font-size: 1.82rem;
     font-weight: 700;
-    letter-spacing: .04em;
-    line-height: 1.35;
+    letter-spacing: .035em;
+    line-height: 1.55;
     color: var(--ink);
     margin: 0;
+    padding: .08rem 0 .12rem 0;
+    display: block;
+    overflow: visible;
+    white-space: normal;
 }
 .hero-sub {
     color: var(--muted);
@@ -283,6 +289,20 @@ details summary,
     font-size: 13px;
     color: var(--muted);
     margin: .35rem 0 .8rem 0;
+}
+
+/* 查询完成后的结果提示：克制但明显 */
+.query-complete {
+    border-left: 3px solid var(--accent);
+    background: #f7f2ec;
+    padding: .62rem .78rem;
+    margin: .15rem 0 .9rem 0;
+    font-size: 14px;
+    color: var(--ink);
+    border-radius: 2px;
+}
+.query-complete strong {
+    font-weight: 600;
 }
 </style>
 """,
@@ -546,12 +566,46 @@ with tabs[0]:
             height=132,
             placeholder="例如：《天工开物》存在水渍，请查询相关修复工序。",
         )
-        if st.button("查询", type="primary", use_container_width=True):
+        query_button_label = "重新查询" if st.session_state.get("last_result") else "查询"
+        if st.button(query_button_label, type="primary", use_container_width=True):
             if not q.strip():
                 st.warning("请先输入古籍名称、病害情况或查询问题。")
             else:
                 default_book = None if selected == "（自动识别）" else selected
-                st.session_state["last_result"] = agent.run(q, selected_book=default_book)
+
+                with st.status("正在查询，请稍候…", expanded=True) as query_status:
+                    st.write("正在识别古籍与病害信息…")
+                    result_now = agent.run(q, selected_book=default_book)
+
+                    parsed_now = result_now["parsed"]
+                    recs_now = parsed_now["recommendations"]
+                    diseases_key = tuple(parsed_now.get("diseases", []))
+                    processes_key = tuple(dict.fromkeys(r.process for r in recs_now))
+
+                    st.write("正在检索专业参考资料…")
+                    academic_query_now, query_method_now = _ai_reference_query(
+                        diseases_key,
+                        processes_key,
+                    )
+                    ref_result_now = _professional_reference_search(
+                        diseases_key,
+                        processes_key,
+                        academic_query_now,
+                    )
+
+                    st.write("正在整理查询结果…")
+                    st.session_state["last_result"] = result_now
+                    st.session_state["last_ref_result"] = ref_result_now
+                    st.session_state["last_ref_query"] = academic_query_now
+                    st.session_state["last_ref_query_method"] = query_method_now
+                    st.session_state["last_ref_key"] = (diseases_key, processes_key)
+                    st.session_state["just_completed"] = True
+
+                    query_status.update(
+                        label="查询完成",
+                        state="complete",
+                        expanded=False,
+                    )
 
     result = st.session_state.get("last_result")
 
@@ -560,6 +614,36 @@ with tabs[0]:
         recs = parsed["recommendations"]
         unresolved = parsed["unresolved"]
         hits = result["hits"]
+
+        st.markdown('<div id="query-result-anchor"></div>', unsafe_allow_html=True)
+
+        just_completed = bool(st.session_state.get("just_completed", False))
+        if just_completed:
+            st.toast("查询完成，结果已生成。", icon="✅")
+            st.markdown(
+                '<div class="query-complete"><strong>查询完成</strong>　已生成新的查询结果，请查看下方内容。</div>',
+                unsafe_allow_html=True,
+            )
+            components.html(
+                """
+                <script>
+                (function () {
+                    function jumpToResult() {
+                        try {
+                            const el = window.parent.document.getElementById('query-result-anchor');
+                            if (el) {
+                                el.scrollIntoView({behavior: 'smooth', block: 'start'});
+                            }
+                        } catch (e) {}
+                    }
+                    setTimeout(jumpToResult, 120);
+                    setTimeout(jumpToResult, 450);
+                })();
+                </script>
+                """,
+                height=0,
+            )
+            st.session_state["just_completed"] = False
 
         st.divider()
         st.markdown("## 查询结果")
@@ -718,15 +802,35 @@ with tabs[0]:
         # ----- 专业资料检索：真实来源先检索，AI只扩展检索词 -----
         diseases_for_refs = tuple(parsed.get("diseases", []))
         processes_for_refs = tuple(dict.fromkeys(r.process for r in recs))
-        academic_query, query_method = _ai_reference_query(
-            diseases_for_refs,
-            processes_for_refs,
-        )
-        ref_result = _professional_reference_search(
-            diseases_for_refs,
-            processes_for_refs,
-            academic_query,
-        )
+        current_ref_key = (diseases_for_refs, processes_for_refs)
+
+        if (
+            st.session_state.get("last_ref_key") == current_ref_key
+            and st.session_state.get("last_ref_result") is not None
+        ):
+            academic_query = st.session_state.get(
+                "last_ref_query",
+                professional_refs.default_search_query(
+                    diseases_for_refs,
+                    processes_for_refs,
+                ),
+            )
+            query_method = st.session_state.get(
+                "last_ref_query_method",
+                "规则生成检索词",
+            )
+            ref_result = st.session_state["last_ref_result"]
+        else:
+            with st.spinner("正在加载专业参考资料…"):
+                academic_query, query_method = _ai_reference_query(
+                    diseases_for_refs,
+                    processes_for_refs,
+                )
+                ref_result = _professional_reference_search(
+                    diseases_for_refs,
+                    processes_for_refs,
+                    academic_query,
+                )
 
         authority_refs = ref_result["authority"]
         academic_refs = ref_result["academic"]
