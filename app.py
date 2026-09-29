@@ -232,6 +232,58 @@ details summary,
     margin-top: .35rem;
     margin-bottom: .7rem;
 }
+
+/* 专业参考资料：主标题之下只保留“小组标题 → 条目”两级 */
+.ref-section {
+    margin-top: .8rem;
+    margin-bottom: 1rem;
+}
+.ref-section-title {
+    font-size: 15.5px;
+    line-height: 1.5;
+    font-weight: 600;
+    color: var(--ink);
+    padding-bottom: .35rem;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: .15rem;
+}
+.ref-item {
+    padding: .62rem .05rem .68rem .05rem;
+    border-bottom: 1px solid #e7e2da;
+}
+.ref-item:last-child {
+    border-bottom: 0;
+}
+.ref-item-title {
+    font-size: 14.5px;
+    line-height: 1.55;
+    font-weight: 600;
+    margin: 0;
+}
+.ref-item-title a {
+    color: var(--accent);
+    text-decoration: none;
+}
+.ref-item-title a:hover {
+    text-decoration: underline;
+}
+.ref-item-meta {
+    font-size: 12.8px;
+    line-height: 1.5;
+    color: var(--muted);
+    margin-top: .16rem;
+}
+.ref-item-note {
+    font-size: 13.5px;
+    line-height: 1.62;
+    color: #4f4b44;
+    margin-top: .22rem;
+}
+.ref-empty-note {
+    font-size: 13px;
+    color: var(--muted);
+    margin: .35rem 0 .8rem 0;
+}
 </style>
 """,
     unsafe_allow_html=True,
@@ -410,28 +462,52 @@ def _professional_reference_search(
     }
 
 
-def _display_reference_item(ref: dict) -> None:
-    category = ref.get("category", "资料")
-    title = ref.get("title", "未命名资料")
-    url = ref.get("url", "")
-    source = ref.get("source", "")
-    year = ref.get("year", "")
-    authors = ref.get("authors", "")
-    journal = ref.get("journal", "")
-    note = ref.get("note", "")
+def _escape_ref_html(value: str) -> str:
+    import html
+    return html.escape(str(value or ""), quote=True)
 
-    if url:
-        st.markdown(f"**[{category}] [{title}]({url})**")
-    else:
-        st.markdown(f"**[{category}] {title}**")
 
-    meta = " · ".join(x for x in [source, journal, year] if x)
-    if meta:
-        st.caption(meta)
-    if authors:
-        st.caption(f"作者：{authors}")
-    if note:
-        st.write(note)
+def _render_reference_group(group_title: str, refs: list[dict]) -> None:
+    if not refs:
+        return
+
+    parts = [
+        '<div class="ref-section">',
+        f'<div class="ref-section-title">{_escape_ref_html(group_title)}</div>',
+    ]
+
+    for i, ref in enumerate(refs, 1):
+        title = _escape_ref_html(ref.get("title", "未命名资料"))
+        url = _escape_ref_html(ref.get("url", ""))
+        category = _escape_ref_html(ref.get("category", ""))
+        source = _escape_ref_html(ref.get("source", ""))
+        year = _escape_ref_html(ref.get("year", ""))
+        journal = _escape_ref_html(ref.get("journal", ""))
+        authors = _escape_ref_html(ref.get("authors", ""))
+        note = _escape_ref_html(ref.get("note", ""))
+
+        if url:
+            title_html = (
+                f'<a href="{url}" target="_blank" rel="noopener noreferrer">{title}</a>'
+            )
+        else:
+            title_html = title
+
+        meta_parts = [x for x in [category, source, journal, year] if x]
+        meta = " · ".join(meta_parts)
+        if authors:
+            meta = (meta + " · " if meta else "") + f"作者：{authors}"
+
+        parts.append('<div class="ref-item">')
+        parts.append(f'<div class="ref-item-title">{i}. {title_html}</div>')
+        if meta:
+            parts.append(f'<div class="ref-item-meta">{meta}</div>')
+        if note:
+            parts.append(f'<div class="ref-item-note">{note}</div>')
+        parts.append('</div>')
+
+    parts.append('</div>')
+    st.markdown("".join(parts), unsafe_allow_html=True)
 
 
 
@@ -654,29 +730,31 @@ with tabs[0]:
 
         st.markdown("### 专业参考资料")
         st.caption(
-            "优先匹配国家标准和专业机构资料，并通过 Crossref 检索真实学术元数据。"
-            "语言模型仅用于扩展检索词，不生成论文标题、作者或 DOI。"
+            "按资料性质分组展示。规范性文件优先，其次为专业机构资料和相关学术研究。"
         )
 
         authority_refs = ref_result["authority"]
         academic_refs = ref_result["academic"]
 
-        if authority_refs:
-            st.markdown("#### 标准与专业机构资料")
-            for i, ref in enumerate(authority_refs):
-                _display_reference_item(ref)
-                if i < len(authority_refs) - 1:
-                    st.markdown("---")
+        standard_refs = [
+            ref for ref in authority_refs
+            if str(ref.get("category", "")).startswith("国家")
+        ]
+        institution_refs = [
+            ref for ref in authority_refs
+            if ref not in standard_refs
+        ]
 
-        if academic_refs:
-            st.markdown("#### 相关学术研究")
-            for i, ref in enumerate(academic_refs):
-                _display_reference_item(ref)
-                if i < len(academic_refs) - 1:
-                    st.markdown("---")
-        elif ref_result["error"]:
-            st.caption(
-                "学术元数据检索暂时无法连接；上方国家标准与专业机构资料仍可正常使用。"
+        _render_reference_group("规范与标准", standard_refs)
+        _render_reference_group("专业机构资料", institution_refs)
+        _render_reference_group("相关学术研究", academic_refs)
+
+        if not academic_refs and ref_result["error"]:
+            st.markdown(
+                '<div class="ref-empty-note">'
+                '学术元数据暂时无法连接；规范、标准和专业机构资料仍可正常使用。'
+                '</div>',
+                unsafe_allow_html=True,
             )
 
         with st.expander("检索说明", expanded=False):
