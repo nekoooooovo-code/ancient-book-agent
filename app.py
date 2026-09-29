@@ -159,16 +159,14 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.markdown("### 知识底座概览")
-st.caption("当前加载本体的规模与规则覆盖情况，用于说明系统知识基础。")
-stats = engine.ontology_stats()
-metric_cols = st.columns(6)
-for i, (k, v) in enumerate(stats.items()):
-    metric_cols[i].metric(k, v)
-
 books = engine.all_books()
 if not books:
     st.warning("没有识别到“古籍文献”实例。请确认上传本体中的类名/属性名。")
+
+st.caption(
+    "系统状态：真实 Protégé RDF 已加载 ｜ 属性链规则已识别 ｜ "
+    + ("LLM 已连接" if llm_client.configured() else "LLM 未连接")
+)
 
 tabs = st.tabs(
     ["🧭 智能分析", "📚 知识检索", "🔎 推理审计", "ℹ️ 系统说明"]
@@ -338,15 +336,99 @@ with tabs[1]:
 with tabs[2]:
     st.markdown("#### 推理审计")
     st.caption("查看系统如何从本体事实、属性链与工具调用得到结果，便于馆员复核。")
-    audit_tabs = st.tabs(["🕸️ 推理路径", "🧰 Agent 轨迹"])
+    audit_tabs = st.tabs(["🕸️ 推理路径", "🧾 覆盖检查", "🧰 Agent 轨迹"])
 
     with audit_tabs[0]:
         if books:
             b = st.selectbox("选择要查看推理路径的古籍", books, key="graph_book")
-            st.graphviz_chart(engine.graphviz_for_book(b), use_container_width=True)
-            st.caption("实线为 RDF 中显式断言；虚线为应用按本体属性链规则计算得到的“建议修复工序”。")
+            diseases = engine.object_values(b, "具有病害")
+            profile = engine.book_profile(b)
+            damage_text = profile.get("破损状况", "")
+
+            if diseases:
+                st.graphviz_chart(engine.graphviz_for_book(b), use_container_width=True)
+                st.caption("实线为 RDF 中显式断言；虚线为应用按本体属性链规则计算得到的“建议修复工序”。")
+
+                st.markdown("### 当前结构化关系")
+                for d in diseases:
+                    processes = engine.disease_processes(d)
+                    if processes:
+                        st.success(
+                            f"{b} → 具有病害 → {d} → 适用修复工序 → {'、'.join(processes)}"
+                        )
+                    else:
+                        st.warning(
+                            f"{b} → 具有病害 → {d}；但“{d}”目前尚未建立适用修复工序映射。"
+                        )
+            else:
+                st.info(
+                    f"当前本体中，“{b}”暂无结构化“具有病害”对象属性关系，"
+                    "因此没有可展示的修复推理路径。"
+                )
+
+                if damage_text:
+                    st.warning(
+                        f"档案中的“破损状况”文字著录为：{damage_text}。"
+                        "该内容目前仅作为数据属性文本保存，尚未结构化为病害节点，"
+                        "所以不会自动进入“具有病害 → 适用修复工序”的属性链推理。"
+                    )
+                else:
+                    st.caption("该古籍档案中目前也没有“破损状况”文字著录。")
+
+                st.markdown(
+                    "**如需测试：** 可前往“智能分析”输入一个临时病害情景。"
+                    "系统会明确标记为“情景推演”，不会把临时输入冒充为本体中的馆藏事实。"
+                )
 
     with audit_tabs[1]:
+        st.markdown("### 古籍病害结构化覆盖检查")
+        st.caption(
+            "用于检查哪些古籍已经建立结构化病害关系、哪些仍只有文字著录，"
+            "便于后续扩充本体。"
+        )
+
+        coverage_rows = []
+        for book in books:
+            profile = engine.book_profile(book)
+            damage_text = profile.get("破损状况", "—") or "—"
+            structured = engine.object_values(book, "具有病害")
+
+            process_pairs = []
+            for d in structured:
+                ps = engine.disease_processes(d)
+                if ps:
+                    process_pairs.extend([f"{d}→{p}" for p in ps])
+
+            if structured and process_pairs:
+                status = "已有结构化病害，部分/全部可推理"
+            elif structured:
+                status = "已有结构化病害，暂无工序映射"
+            elif damage_text != "—":
+                status = "仅有破损文字著录，尚未结构化"
+            else:
+                status = "暂无病害数据"
+
+            coverage_rows.append(
+                {
+                    "古籍": book,
+                    "破损状况（文字）": damage_text,
+                    "结构化病害": "、".join(structured) if structured else "—",
+                    "已建立病害→工序映射": "；".join(process_pairs) if process_pairs else "—",
+                    "状态": status,
+                }
+            )
+
+        st.dataframe(
+            pd.DataFrame(coverage_rows),
+            use_container_width=True,
+            hide_index=True,
+        )
+        st.info(
+            "注意：“破损状况”文字著录不等于结构化病害关系。"
+            "只有通过“具有病害”等对象属性建立的节点关系，才能参与当前属性链推理。"
+        )
+
+    with audit_tabs[2]:
         result = st.session_state.get("last_result")
         if not result:
             st.info("先在“智能分析”运行一次分析，这里会显示 Agent 的工具调用轨迹。")
@@ -358,6 +440,13 @@ with tabs[2]:
 
 # 4. 系统说明：保留方法、边界与技术路线
 with tabs[3]:
+    st.markdown("### 当前知识底座")
+    stats = engine.ontology_stats()
+    metric_cols = st.columns(6)
+    for i, (k, v) in enumerate(stats.items()):
+        metric_cols[i].metric(k, v)
+    st.caption("以上为当前加载的真实 Protégé RDF 规模与规则覆盖情况。")
+
     st.markdown(
         """
 ### 系统定位
@@ -366,7 +455,7 @@ with tabs[3]:
 ### 功能分层
 - **智能分析**：面向实际业务问题，输出候选工序、知识边界与AI综合说明；
 - **知识检索**：浏览古籍档案与修复工序知识；
-- **推理审计**：查看推理路径与 Agent 工具调用轨迹；
+- **推理审计**：查看推理路径、结构化覆盖情况与 Agent 工具调用轨迹；
 - **系统说明**：说明技术路线、专业边界和当前知识覆盖范围。
 
 ### 技术路线
